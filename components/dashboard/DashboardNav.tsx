@@ -26,6 +26,7 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Overview" },
+  { href: "/dashboard/courses", icon: BookOpen, label: "Courses" },
   { href: "/dashboard/schedule", icon: Calendar, label: "Schedule" },
   { href: "/dashboard/community", icon: MessageSquare, label: "Community" },
   { href: "/dashboard/settings", icon: Settings, label: "Settings" },
@@ -69,7 +70,7 @@ export function DashboardNav() {
             )}
           >
             <item.icon className="h-5 w-5" />
-            {item.label}
+            <span>{item.label}</span>
           </Link>
         ))}
 
@@ -97,7 +98,7 @@ export function DashboardNav() {
                 alignOffset={-5}
               >
                 {adminItems.map((item) => (
-                  <DropdownMenuItem key={item.href} asChild>
+                  <DropdownMenuItem key={item.href}>
                     <Link
                       href={item.href}
                       className={cn(
@@ -106,7 +107,7 @@ export function DashboardNav() {
                       )}
                     >
                       <item.icon className="h-4 w-4" />
-                      {item.label}
+                      <span>{item.label}</span>
                     </Link>
                   </DropdownMenuItem>
                 ))}
