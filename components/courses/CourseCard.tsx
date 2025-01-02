@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Clock, BookOpen, BarChart } from "lucide-react";
+import { Clock, BookOpen } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { useCourseLessons } from "@/lib/hooks/courses/useCourseLessons";
 import type { Course, CourseProgress } from "@/lib/types/courses";
 
 interface CourseCardProps {
@@ -12,6 +13,8 @@ interface CourseCardProps {
 }
 
 export function CourseCard({ course, progress }: CourseCardProps) {
+  const { lessons } = useCourseLessons(course.id);
+  
   const levelColors = {
     beginner: "text-green-500",
     intermediate: "text-blue-500",
@@ -50,14 +53,10 @@ export function CourseCard({ course, progress }: CourseCardProps) {
               <Clock className="h-4 w-4" />
               <span>{course.duration_weeks} weeks</span>
             </div>
-            {progress && (
-              <div className="flex items-center gap-1">
-                <BookOpen className="h-4 w-4" />
-                <span>
-                  {progress.completed_lessons}/{progress.total_lessons} lessons
-                </span>
-              </div>
-            )}
+            <div className="flex items-center gap-1">
+              <BookOpen className="h-4 w-4" />
+              <span>{lessons.length} Assignments</span>
+            </div>
           </div>
         </CardContent>
         <CardFooter>

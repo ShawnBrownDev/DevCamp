@@ -4,6 +4,21 @@ import { useState, useEffect } from 'react';
 import { useSupabase } from '@/lib/supabase/hooks';
 import type { AdminSubmission } from '@/lib/types/admin';
 
+const SUBMISSIONS_QUERY = `
+  *,
+  user:users (
+    id,
+    username,
+    first_name,
+    last_name
+  ),
+  assignment:assignments (
+    id,
+    title,
+    course_id
+  )
+`;
+
 export function useSubmissions() {
   const [submissions, setSubmissions] = useState<AdminSubmission[]>([]);
   const [loading, setLoading] = useState(true);
@@ -16,11 +31,7 @@ export function useSubmissions() {
         setLoading(true);
         const { data, error: submissionsError } = await supabase
           .from('submissions')
-          .select(`
-            *,
-            user:users(username, email),
-            assignment:assignments(title, course_id)
-          `)
+          .select(SUBMISSIONS_QUERY)
           .order('submitted_at', { ascending: false });
 
         if (submissionsError) throw submissionsError;

@@ -1,20 +1,3 @@
-export interface AdminStats {
-  totalUsers: number;
-  activeUsers: number;
-  totalCourses: number;
-  totalEnrollments: number;
-}
-
-export interface AdminUser {
-  id: string;
-  username: string;
-  email: string;
-  role: 'user' | 'admin' | 'moderator';
-  subscription_status: string;
-  last_sign_in: string | null;
-  created_at: string;
-}
-
 export interface AdminSubmission {
   id: string;
   user_id: string;
@@ -25,10 +8,13 @@ export interface AdminSubmission {
   submitted_at: string;
   graded_at: string | null;
   user: {
+    id: string;
     username: string;
-    email: string;
+    first_name: string | null;
+    last_name: string | null;
   };
   assignment: {
+    id: string;
     title: string;
     course_id: string;
   };

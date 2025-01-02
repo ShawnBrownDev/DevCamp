@@ -2,7 +2,7 @@
 
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { AdminRoute } from "@/components/admin/AdminRoute";
-import { GradingQueue } from "@/components/admin/GradingQueue";
+import { GradingQueue } from "@/components/admin/grading";
 
 export default function AdminGradingPage() {
   return (
