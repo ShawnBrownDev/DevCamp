@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, Sparkles } from "lucide-react";
-import { useRouter } from "next/navigation"; // Changed from next/router to next/navigation
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,7 +11,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { getCheckoutRedirectPath } from "@/lib/pricing/utils";
 import type { PricingPlan } from "@/lib/pricing/types";
 
 interface PricingCardProps {
@@ -21,21 +20,21 @@ interface PricingCardProps {
 
 export function PricingCard({ plan, isYearly }: PricingCardProps) {
   const router = useRouter();
-  const { user, isSupabaseConnected } = useAuth();
+  const { user } = useAuth();
   const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
   const period = isYearly ? 'year' : 'month';
 
   const handleGetStarted = () => {
-    const redirectPath = getCheckoutRedirectPath(
-      isSupabaseConnected && !!user,
-      {
-        plan: plan.name,
-        isYearly,
-        returnUrl: '/checkout'
-      }
-    );
-    
-    router.push(redirectPath);
+    const params = new URLSearchParams({
+      plan: plan.name.toLowerCase(),
+      billing: isYearly ? 'yearly' : 'monthly'
+    });
+
+    if (!user) {
+      router.push(`/signup?${params.toString()}`);
+    } else {
+      router.push(`/checkout?${params.toString()}`);
+    }
   };
 
   return (

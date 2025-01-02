@@ -1,23 +1,36 @@
 // Auth error messages
 export const AUTH_ERRORS = {
-  RATE_LIMIT: "Please wait a moment before trying again",
-  INVALID_CREDENTIALS: "Invalid email or password",
-  CONNECTION_ERROR: "Unable to connect to authentication service",
-  DEFAULT: "Something went wrong. Please try again",
+  INVALID_CREDENTIALS: {
+    code: "invalid_credentials",
+    message: "Invalid email or password"
+  },
+  USER_NOT_FOUND: {
+    code: "user_not_found",
+    message: "No user found with this email"
+  },
+  RATE_LIMIT: {
+    code: "too_many_requests",
+    message: "Too many attempts. Please try again later",
+    retryAfterSeconds: 60
+  },
+  DEFAULT: {
+    message: "An error occurred. Please try again"
+  }
 } as const;
 
 export function getAuthErrorMessage(error: any): string {
-  if (!error) return AUTH_ERRORS.DEFAULT;
-  
-  // Handle rate limit errors
-  if (error.code === "over_email_send_rate_limit") {
-    return AUTH_ERRORS.RATE_LIMIT;
+  if (!error) return AUTH_ERRORS.DEFAULT.message;
+
+  // Handle specific Supabase error codes
+  switch (error.code) {
+    case "invalid_credentials":
+    case "invalid_grant":
+      return AUTH_ERRORS.INVALID_CREDENTIALS.message;
+    case "user_not_found":
+      return AUTH_ERRORS.USER_NOT_FOUND.message;
+    case "too_many_requests":
+      return AUTH_ERRORS.RATE_LIMIT.message;
+    default:
+      return error.message || AUTH_ERRORS.DEFAULT.message;
   }
-  
-  // Handle other specific errors here
-  if (error.message) {
-    return error.message;
-  }
-  
-  return AUTH_ERRORS.DEFAULT;
 }

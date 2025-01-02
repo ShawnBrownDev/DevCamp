@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,10 +16,14 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { RateLimitAlert } from "./RateLimitAlert";
 import { signUp } from "@/lib/auth/signup";
 import { getAuthErrorMessage } from "@/lib/auth/errors";
+import { AUTH_ERRORS } from "@/lib/auth/errors";
 
 const formSchema = z.object({
+  firstName: z.string().min(2, "First name must be at least 2 characters"),
+  lastName: z.string().min(2, "Last name must be at least 2 characters"),
   username: z.string().min(3, "Username must be at least 3 characters"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
@@ -35,6 +41,8 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      firstName: "",
+      lastName: "",
       username: "",
       email: "",
       password: "",
@@ -42,25 +50,21 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (isRateLimited) {
-      return;
-    }
+    if (isRateLimited) return;
 
     setError(null);
     
     try {
       setIsLoading(true);
-      await signUp(values.email, values.password, values.username);
+      await signUp(values);
       onSuccess?.();
     } catch (error: any) {
       console.error('Error:', error);
       const message = getAuthErrorMessage(error);
       setError(message);
       
-      // Handle rate limiting
-      if (error.code === "over_email_send_rate_limit") {
+      if (error.code === AUTH_ERRORS.RATE_LIMIT.code) {
         setIsRateLimited(true);
-        setTimeout(() => setIsRateLimited(false), 33000); // 33 seconds as per error message
       }
     } finally {
       setIsLoading(false);
@@ -70,12 +74,49 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {error && (
-          <Alert variant={isRateLimited ? "warning" : "destructive"}>
+        {error && !isRateLimited && (
+          <Alert variant="destructive">
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
+
+        {isRateLimited && (
+          <RateLimitAlert onComplete={() => {
+            setIsRateLimited(false);
+            setError(null);
+          }} />
+        )}
         
+        <div className="grid gap-4 md:grid-cols-2">
+          <FormField
+            control={form.control}
+            name="firstName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>First Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="John" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="lastName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Last Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Doe" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
         <FormField
           control={form.control}
           name="username"

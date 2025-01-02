@@ -2,7 +2,7 @@
 
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useAuth } from "@/lib/hooks/useAuth";
+import { useAuth } from "@/lib/auth";
 
 export function ConnectionStatus() {
   const { isSupabaseConnected } = useAuth();

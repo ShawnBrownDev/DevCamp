@@ -1,8 +1,18 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
+import dynamic from 'next/dynamic';
 import { weeklyActivity } from "@/lib/data/mockData";
+
+// Dynamically import Recharts components to avoid SSR issues
+const Charts = dynamic(() => import('./charts/WeeklyActivityChart'), {
+  ssr: false,
+  loading: () => (
+    <div className="h-[200px] flex items-center justify-center">
+      <p className="text-muted-foreground">Loading chart...</p>
+    </div>
+  )
+});
 
 export function WeeklyActivity() {
   return (
@@ -12,17 +22,7 @@ export function WeeklyActivity() {
       </CardHeader>
       <CardContent>
         <div className="h-[200px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={weeklyActivity}>
-              <XAxis dataKey="day" />
-              <YAxis />
-              <Bar
-                dataKey="hours"
-                fill="hsl(var(--primary))"
-                radius={[4, 4, 0, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
+          <Charts data={weeklyActivity} />
         </div>
       </CardContent>
     </Card>

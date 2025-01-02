@@ -1,25 +1,28 @@
 import { createClient } from '@supabase/supabase-js';
-import { Database } from '@/types/supabase';
-import { SUPABASE_CONFIG, validateSupabaseConfig } from './config';
+import { env } from '@/lib/config/env';
+import type { Database } from '@/types/supabase';
 
-let supabase: ReturnType<typeof createClient<Database>> | null = null;
+let supabaseClient: ReturnType<typeof createClient<Database>> | null = null;
 
 export function getSupabaseClient() {
-  if (!validateSupabaseConfig()) {
-    return null;
-  }
+  if (!supabaseClient) {
+    if (!env.supabase.url || !env.supabase.anonKey) {
+      console.error('Missing Supabase environment variables');
+      return null;
+    }
 
-  if (!supabase) {
-    supabase = createClient<Database>(
-      SUPABASE_CONFIG.url!,
-      SUPABASE_CONFIG.anonKey!,
+    supabaseClient = createClient<Database>(
+      env.supabase.url,
+      env.supabase.anonKey,
       {
         auth: {
           persistSession: true,
-        },
+          autoRefreshToken: true,
+          detectSessionInUrl: true
+        }
       }
     );
   }
 
-  return supabase;
+  return supabaseClient;
 }

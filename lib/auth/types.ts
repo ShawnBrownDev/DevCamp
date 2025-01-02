@@ -1,13 +1,20 @@
-import type { User } from '@supabase/supabase-js';
+import type { User, SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@/types/supabase';
 
 export interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isSupabaseConnected: boolean;
+  supabase: SupabaseClient<Database>;
 }
 
-export interface SignupData {
+export interface AuthError {
+  message: string;
+  status?: number;
+  code?: string;
+}
+
+export interface ResetPasswordOptions {
   email: string;
-  password: string;
-  username: string;
+  redirectTo?: string;
 }
