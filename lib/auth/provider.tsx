@@ -27,9 +27,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     setIsSupabaseConnected(true);
+    let mounted = true;
 
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
       setUser(session?.user ?? null);
       setIsLoading(false);
     });
@@ -37,14 +39,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session: Session | null) => {
+        if (!mounted) return;
         setUser(session?.user ?? null);
-        setIsLoading(false);
 
         switch (event) {
           case 'SIGNED_IN':
-            // Persist session based on stored preference
-            const rememberMe = localStorage.getItem('sb-auth-persist') === 'true';
-            await persistSession(rememberMe);
+            await persistSession(localStorage.getItem('sb-auth-persist') === 'true');
             break;
           case 'SIGNED_OUT':
             await clearSession();
@@ -52,15 +52,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
               router.push('/login');
             }
             break;
-          case 'TOKEN_REFRESHED':
-          case 'USER_UPDATED':
-            setUser(session?.user ?? null);
-            break;
         }
       }
     );
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, [supabase, router]);

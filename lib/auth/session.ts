@@ -1,9 +1,9 @@
-import { getSupabaseClient } from '@/lib/supabase/client';
-import type { Session } from '@supabase/supabase-js';
+"use client";
 
-export async function getSession(): Promise<Session | null> {
+import { getSupabaseClient } from '@/lib/supabase/client';
+
+export async function getSession() {
   const supabase = getSupabaseClient();
-  
   if (!supabase) return null;
   
   try {
@@ -15,24 +15,12 @@ export async function getSession(): Promise<Session | null> {
   }
 }
 
-export async function persistSession(rememberMe: boolean = true): Promise<void> {
-  const supabase = getSupabaseClient();
-  if (!supabase) return;
-
-  try {
-    await supabase.auth.getSession();
-    if (rememberMe) {
-      localStorage.setItem('sb-auth-persist', 'true');
-    } else {
-      localStorage.removeItem('sb-auth-persist');
-      sessionStorage.setItem('sb-auth-persist', 'true');
-    }
-  } catch (error) {
-    console.error('Error persisting session:', error);
-  }
+export async function persistSession(rememberMe: boolean = true) {
+  const storage = rememberMe ? localStorage : sessionStorage;
+  storage.setItem('sb-auth-persist', String(rememberMe));
 }
 
-export async function clearSession(): Promise<void> {
+export async function clearSession() {
   localStorage.removeItem('sb-auth-persist');
   sessionStorage.removeItem('sb-auth-persist');
 }

@@ -1,28 +1,45 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 import { 
   LayoutDashboard, 
   BookOpen, 
   Calendar, 
   MessageSquare, 
   Settings,
+  Shield,
+  GraduationCap,
+  ChevronDown,
   LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { useAdminCheck } from "@/lib/hooks/useAdminCheck";
+import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Overview" },
-  { href: "/dashboard/courses", icon: BookOpen, label: "Courses" },
   { href: "/dashboard/schedule", icon: Calendar, label: "Schedule" },
   { href: "/dashboard/community", icon: MessageSquare, label: "Community" },
   { href: "/dashboard/settings", icon: Settings, label: "Settings" },
 ];
 
+const adminItems = [
+  { href: "/dashboard/admin", icon: Shield, label: "Dashboard" },
+  { href: "/dashboard/admin/grading", icon: GraduationCap, label: "Grading" },
+  { href: "/dashboard/admin/courses", icon: BookOpen, label: "Manage Courses" },
+];
+
 export function DashboardNav() {
   const router = useRouter();
+  const { isAdmin } = useAdminCheck();
 
   const handleSignOut = async () => {
     const supabase = getSupabaseClient();
@@ -31,6 +48,9 @@ export function DashboardNav() {
       router.push("/");
     }
   };
+
+  const isActiveLink = (href: string) => router.pathname === href;
+  const isActiveAdminSection = adminItems.some(item => router.pathname.startsWith(item.href));
 
   return (
     <div className="h-full flex flex-col">
@@ -43,12 +63,57 @@ export function DashboardNav() {
           <Link
             key={item.href}
             href={item.href}
-            className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+            className={cn(
+              "flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground transition-colors",
+              isActiveLink(item.href) && "bg-accent text-foreground"
+            )}
           >
             <item.icon className="h-5 w-5" />
             {item.label}
           </Link>
         ))}
+
+        {isAdmin && (
+          <div className="relative">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={cn(
+                    "flex items-center justify-between w-full gap-3 px-3 py-2 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground transition-colors",
+                    isActiveAdminSection && "bg-accent text-foreground"
+                  )}
+                >
+                  <div className="flex items-center gap-3">
+                    <Shield className="h-5 w-5" />
+                    <span>Admin</span>
+                  </div>
+                  <ChevronDown className="h-4 w-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                side="right"
+                className="w-56"
+                align="start"
+                alignOffset={-5}
+              >
+                {adminItems.map((item) => (
+                  <DropdownMenuItem key={item.href} asChild>
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        "flex items-center gap-3 w-full",
+                        isActiveLink(item.href) && "bg-accent"
+                      )}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      {item.label}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
       </nav>
 
       <div className="p-4 border-t">
