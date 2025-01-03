@@ -15,14 +15,21 @@ export function UserAvatar({ user, size = "md" }: UserAvatarProps) {
     lg: "h-12 w-12"
   };
 
-  const initials = user.first_name && user.last_name
-    ? `${user.first_name[0]}${user.last_name[0]}`
-    : user.username[0].toUpperCase();
+  // Safely generate initials even if first_name/last_name are null
+  const getInitials = () => {
+    if (!user) return '?';
+    
+    if (user.first_name && user.last_name) {
+      return `${user.first_name[0]}${user.last_name[0]}`;
+    }
+    
+    return user.username?.[0]?.toUpperCase() || '?';
+  };
 
   return (
     <Avatar className={sizeClasses[size]}>
-      <AvatarImage src={user.avatar_url || undefined} />
-      <AvatarFallback>{initials}</AvatarFallback>
+      <AvatarImage src={user?.avatar_url || undefined} alt={user?.username || 'User'} />
+      <AvatarFallback>{getInitials()}</AvatarFallback>
     </Avatar>
   );
 }

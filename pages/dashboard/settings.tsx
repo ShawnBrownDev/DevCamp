@@ -4,13 +4,12 @@ import { useState } from "react";
 import { AuthenticatedRoute } from "@/components/auth/AuthenticatedRoute";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { SettingsTabs } from "@/components/settings/SettingsTabs";
-import { ProfileSettings } from "@/components/settings/ProfileSettings";
 import { PreferencesSettings } from "@/components/settings/PreferencesSettings";
 import { NotificationSettings } from "@/components/settings/NotificationSettings";
 import { SecuritySettings } from "@/components/settings/SecuritySettings";
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState("profile");
+  const [activeTab, setActiveTab] = useState("preferences");
 
   return (
     <AuthenticatedRoute>
@@ -27,7 +26,6 @@ export default function SettingsPage() {
             <SettingsTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
             <div className="space-y-8">
-              {activeTab === "profile" && <ProfileSettings />}
               {activeTab === "preferences" && <PreferencesSettings />}
               {activeTab === "notifications" && <NotificationSettings />}
               {activeTab === "security" && <SecuritySettings />}
