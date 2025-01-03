@@ -49,7 +49,7 @@ export function ChatMessage({ message, onEdit, onDelete }: ChatMessageProps) {
 
   return (
     <div className="flex items-start gap-4 p-4 group hover:bg-accent/5">
-      <UserAvatar user={message.user} />
+      <UserAvatar user={message.user!} />
       <div className="flex-1 space-y-1">
         <div className="flex items-center gap-2">
           <span className="font-medium">
@@ -58,7 +58,9 @@ export function ChatMessage({ message, onEdit, onDelete }: ChatMessageProps) {
               : message.user?.username}
           </span>
           <span className="text-xs text-muted-foreground">
-            {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
+            {formatDistanceToNow(new Date(message.created_at), {
+              addSuffix: true,
+            })}
           </span>
         </div>
 
@@ -82,8 +84,8 @@ export function ChatMessage({ message, onEdit, onDelete }: ChatMessageProps) {
                 size="sm"
                 variant="ghost"
                 onClick={() => {
-                  setIsEditing(false);
-                  setEditedContent(message.content);
+                  setIsEditing(false)
+                  setEditedContent(message.content)
                 }}
                 disabled={isSubmitting}
               >
@@ -103,5 +105,5 @@ export function ChatMessage({ message, onEdit, onDelete }: ChatMessageProps) {
         />
       )}
     </div>
-  );
+  )
 }

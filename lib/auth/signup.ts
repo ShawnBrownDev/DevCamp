@@ -1,5 +1,8 @@
-import type { SignupData } from './types'
 import { supabase } from '../supabase'
+
+type SignupData = {
+  [key: string]: string
+}
 
 export async function signUp({
   email,
