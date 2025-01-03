@@ -2,8 +2,9 @@
 
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import { useAuth } from '@/lib/auth';
+
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { useAuthProvider } from '@/lib/auth'
 
 interface AuthenticatedRouteProps {
   children: React.ReactNode;
@@ -11,7 +12,7 @@ interface AuthenticatedRouteProps {
 
 export function AuthenticatedRoute({ children }: AuthenticatedRouteProps) {
   const router = useRouter();
-  const { user, isLoading } = useAuth();
+  const { user, isLoading } = useAuthProvider()
 
   useEffect(() => {
     if (!isLoading && !user) {

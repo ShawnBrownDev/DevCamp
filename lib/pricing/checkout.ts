@@ -1,5 +1,6 @@
 import { NextRouter } from 'next/router';
-import { getSupabaseClient } from '@/lib/supabase/client';
+import { supabase } from '../supabase'
+
 
 interface CheckoutFlowParams {
   plan: string;
@@ -8,22 +9,23 @@ interface CheckoutFlowParams {
 }
 
 export async function handleCheckoutFlow({ plan, isYearly, router }: CheckoutFlowParams) {
-  const supabase = getSupabaseClient();
-  
   if (!supabase) {
-    throw new Error('Supabase connection not available');
+    throw new Error('Supabase connection not available')
   }
 
-  const { data: { session }, error } = await supabase.auth.getSession();
-  
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession()
+
   if (error) {
-    throw error;
+    throw error
   }
 
   const query = {
     plan,
-    billing: isYearly ? 'yearly' : 'monthly'
-  };
+    billing: isYearly ? 'yearly' : 'monthly',
+  }
 
   if (!session) {
     // If not authenticated, redirect to signup
@@ -31,15 +33,15 @@ export async function handleCheckoutFlow({ plan, isYearly, router }: CheckoutFlo
       pathname: '/signup',
       query: {
         ...query,
-        returnUrl: '/checkout'
-      }
-    });
-    return;
+        returnUrl: '/checkout',
+      },
+    })
+    return
   }
 
   // If authenticated, proceed to checkout
   router.push({
     pathname: '/checkout',
-    query
-  });
+    query,
+  })
 }

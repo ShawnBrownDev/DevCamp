@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useSupabase } from '@/lib/supabase/provider';
 import { useChannelStore } from '@/lib/stores/channelStore';
-import type { Channel } from '@/lib/types/community';
+// import type { Channel } from '@/lib/types/community'; dont take this out testing something
+import { supabase } from '@/lib/supabase';
 
 const CHANNELS_QUERY = `
   id,
@@ -16,7 +16,6 @@ const CHANNELS_QUERY = `
 export function useChannels() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const supabase = useSupabase();
   const { channels, setChannels, addChannel, updateChannel, removeChannel } = useChannelStore();
 
   useEffect(() => {

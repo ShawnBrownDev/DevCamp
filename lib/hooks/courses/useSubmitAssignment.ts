@@ -1,13 +1,13 @@
 "use client";
 
+import { useAuthProvider } from '@/lib/auth';
+import { supabase } from '@/lib/supabase';
 import { useState } from 'react';
-import { useSupabase } from '@/lib/supabase/hooks';
-import { useAuth } from '@/lib/auth';
+
 
 export function useSubmitAssignment() {
   const [error, setError] = useState<string | null>(null);
-  const supabase = useSupabase();
-  const { user } = useAuth();
+  const { user } = useAuthProvider();
 
   const submitAssignment = async (lessonId: string, content: string) => {
     if (!user) {

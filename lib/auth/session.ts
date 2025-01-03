@@ -1,17 +1,20 @@
 "use client";
 
-import { getSupabaseClient } from '@/lib/supabase/client';
+import { supabase } from '../supabase'
+
+
 
 export async function getSession() {
-  const supabase = getSupabaseClient();
-  if (!supabase) return null;
-  
+  if (!supabase) return null
+
   try {
-    const { data: { session } } = await supabase.auth.getSession();
-    return session;
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
+    return session
   } catch (error) {
-    console.error('Error getting session:', error);
-    return null;
+    console.error('Error getting session:', error)
+    return null
   }
 }
 

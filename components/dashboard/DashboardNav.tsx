@@ -20,9 +20,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getSupabaseClient } from "@/lib/supabase/client";
+
 import { useAdminCheck } from "@/lib/hooks/useAdminCheck";
 import { cn } from "@/lib/utils";
+import { supabase } from '@/lib/supabase'
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Overview" },
@@ -43,10 +44,9 @@ export function DashboardNav() {
   const { isAdmin } = useAdminCheck();
 
   const handleSignOut = async () => {
-    const supabase = getSupabaseClient();
     if (supabase) {
-      await supabase.auth.signOut();
-      router.push("/");
+      await supabase.auth.signOut()
+      router.push('/')
     }
   };
 

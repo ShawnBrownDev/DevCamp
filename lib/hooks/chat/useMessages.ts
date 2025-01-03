@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useSupabase } from '@/lib/supabase/provider';
 import { useMessageStore } from '@/lib/stores/messageStore';
 import type { Message } from '@/lib/types/community';
+import { supabase } from '@/lib/supabase';
 
 const MESSAGES_QUERY = `
   id,
@@ -23,8 +23,7 @@ const PAGE_SIZE = 20;
 export function useMessages(channelId: string | null) {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const supabase = useSupabase();
+  const [hasMore, setHasMore] = useState(true)
   const subscriptionRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const { messages, setMessages, addMessage } = useMessageStore(channelId);
 

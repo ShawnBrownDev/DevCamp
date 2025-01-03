@@ -1,12 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { useAuthProvider } from '@/lib/auth'
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { useAuth } from '@/lib/auth';
+
 
 export default function Hero() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading } = useAuthProvider()
 
   if (isLoading) {
     return null;

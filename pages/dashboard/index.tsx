@@ -2,17 +2,18 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/router";
-import { useAuth } from "@/lib/hooks/useAuth";
+
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { CourseProgress } from "@/components/dashboard/CourseProgress";
 import { UpcomingLessons } from "@/components/dashboard/UpcomingLessons";
 import { WeeklyActivity } from "@/components/dashboard/WeeklyActivity";
 import { NextAssignments } from "@/components/dashboard/NextAssignments";
 import { Loader2 } from "lucide-react";
+import { useAuthProvider } from '@/lib/auth'
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, isLoading } = useAuth();
+  const { user, isLoading } = useAuthProvider()
 
   useEffect(() => {
     if (!isLoading && !user) {

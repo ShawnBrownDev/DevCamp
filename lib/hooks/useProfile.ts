@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/lib/auth';
-import { useSupabase } from '@/lib/supabase/context';
+
 import type { UserProfile } from '@/lib/types/user';
+import { useAuthProvider } from '../auth'
+import { supabase } from '../supabase'
 
 export function useProfile() {
-  const { user } = useAuth();
-  const supabase = useSupabase();
+  const { user } = useAuthProvider()
+
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,8 +25,8 @@ export function useProfile() {
         const { data, error } = await supabase
           .from('users')
           .select('*')
-          .eq('id', user.id)
-          .single();
+          .eq('id', user?.id)
+          .single()
 
         if (error) throw error;
         setProfile(data);

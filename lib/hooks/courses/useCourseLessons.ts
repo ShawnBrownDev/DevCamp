@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useSupabase } from '@/lib/supabase/hooks';
+
 import type { Lesson } from '@/lib/types/courses';
+import { supabase } from '@/lib/supabase'
 
 export function useCourseLessons(courseId: string) {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const supabase = useSupabase();
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     let mounted = true;
