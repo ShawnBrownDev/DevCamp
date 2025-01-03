@@ -10,8 +10,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useAuth } from "@/lib/hooks/useAuth";
+
 import type { PricingPlan } from "@/lib/pricing/types";
+import { useAuthProvider } from '@/lib/auth'
 
 interface PricingCardProps {
   plan: PricingPlan;
@@ -20,7 +21,7 @@ interface PricingCardProps {
 
 export function PricingCard({ plan, isYearly }: PricingCardProps) {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user } = useAuthProvider()
   const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
   const period = isYearly ? 'year' : 'month';
 

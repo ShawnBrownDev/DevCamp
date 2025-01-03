@@ -1,7 +1,6 @@
 import { useRouter } from 'next/router';
 import { AuthFormWrapper } from "@/components/auth/AuthFormWrapper";
-import { SignupForm } from "@/components/auth/SignupForm";
-import { ConnectionStatus } from "@/components/auth/ConnectionStatus";
+import { SignupForm } from '@/components/auth/SignupForm'
 import Navbar from "@/components/layout/Navbar";
 
 export default function SignupPage() {
@@ -21,7 +20,7 @@ export default function SignupPage() {
             href: "/login"
           }}
         >
-          <ConnectionStatus />
+
           <SignupForm onSuccess={() => {
             if (returnUrl && plan && billing) {
               router.push({

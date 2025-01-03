@@ -1,32 +1,31 @@
-import { useSupabase } from '@/lib/supabase';
-import type { FeatureFlags } from '@/lib/types/user';
+import type { FeatureFlags } from '@/lib/types/user'
+import { supabase } from '../supabase'
 
-export async function updateFeatureFlags(userId: string, flags: Partial<FeatureFlags>) {
-  const supabase = useSupabase();
-  
+export async function updateFeatureFlags(
+  userId: string,
+  flags: Partial<FeatureFlags>
+) {
   const { data, error } = await supabase
     .from('users')
-    .update({ 
+    .update({
       feature_flags: flags,
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     })
     .eq('id', userId)
     .select('feature_flags')
-    .single();
+    .single()
 
-  if (error) throw error;
-  return data.feature_flags;
+  if (error) throw error
+  return data.feature_flags
 }
 
 export async function getFeatureFlags(userId: string) {
-  const supabase = useSupabase();
-  
   const { data, error } = await supabase
     .from('users')
     .select('feature_flags')
     .eq('id', userId)
-    .single();
+    .single()
 
-  if (error) throw error;
-  return data.feature_flags as FeatureFlags;
+  if (error) throw error
+  return data.feature_flags as FeatureFlags
 }

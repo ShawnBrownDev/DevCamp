@@ -18,8 +18,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AvatarUpload } from "./AvatarUpload";
-import { useAuth } from "@/lib/auth";
+
 import { useProfile } from "@/lib/hooks/useProfile";
+import { useAuthProvider } from '@/lib/auth'
+import { supabase } from '@/lib/supabase'
 
 const formSchema = z.object({
   username: z
@@ -33,8 +35,7 @@ const formSchema = z.object({
 });
 
 export function ProfileSettings() {
-  const { profile, loading, error: profileError } = useProfile();
-  const { supabase } = useAuth();
+  const { profile, loading, error: profileError } = useProfile()
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);

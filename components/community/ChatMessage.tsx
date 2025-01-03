@@ -6,8 +6,9 @@ import { UserAvatar } from "@/components/chat/UserAvatar";
 import { MessageActions } from "./MessageActions";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { useAuth } from "@/lib/auth";
+
 import type { Message } from "@/lib/types/chat";
+import { useAuthProvider } from '@/lib/auth'
 
 interface ChatMessageProps {
   message: Message;
@@ -19,7 +20,7 @@ export function ChatMessage({ message, onEdit, onDelete }: ChatMessageProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(message.content);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { user } = useAuth();
+  const { user } = useAuthProvider()
 
   const isOwnMessage = user?.id === message.user_id;
 

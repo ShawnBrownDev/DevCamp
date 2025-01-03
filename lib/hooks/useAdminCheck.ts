@@ -1,25 +1,26 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useSupabase } from '@/lib/supabase/hooks';
-import { useAuth } from '@/lib/auth';
+
+
+import { supabase } from '../supabase'
+import { useAuthProvider } from '../auth'
 
 export function useAdminCheck() {
-  const { user } = useAuth();
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const supabase = useSupabase();
+  const { user } = useAuthProvider()
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    let mounted = true;
+    let mounted = true
 
     async function checkAdminStatus() {
       if (!user) {
         if (mounted) {
-          setIsAdmin(false);
-          setLoading(false);
+          setIsAdmin(false)
+          setLoading(false)
         }
-        return;
+        return
       }
 
       try {
@@ -27,27 +28,27 @@ export function useAdminCheck() {
           .from('users')
           .select('role')
           .eq('id', user.id)
-          .single();
+          .single()
 
         if (mounted) {
-          setIsAdmin(data?.role === 'admin');
-          setLoading(false);
+          setIsAdmin(data?.role === 'admin')
+          setLoading(false)
         }
       } catch (error) {
-        console.error('Error checking admin status:', error);
+        console.error('Error checking admin status:', error)
         if (mounted) {
-          setIsAdmin(false);
-          setLoading(false);
+          setIsAdmin(false)
+          setLoading(false)
         }
       }
     }
 
-    checkAdminStatus();
+    checkAdminStatus()
 
     return () => {
-      mounted = false;
-    };
-  }, [user, supabase]);
+      mounted = false
+    }
+  }, [user, supabase])
 
-  return { isAdmin, loading };
+  return { isAdmin, loading }
 }

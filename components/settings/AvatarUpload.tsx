@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { uploadAvatar } from "@/lib/storage/avatar";
-import { useAuth } from "@/lib/auth";
+import { useAuthProvider } from '@/lib/auth'
+import { supabase } from '@/lib/supabase'
+
 
 interface AvatarUploadProps {
   currentAvatarUrl?: string | null;
@@ -17,7 +19,7 @@ export function AvatarUpload({ currentAvatarUrl, onUploadSuccess }: AvatarUpload
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { user, supabase } = useAuth();
+  const { user } = useAuthProvider()
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

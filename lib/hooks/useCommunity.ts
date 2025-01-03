@@ -1,15 +1,15 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useSupabase } from '@/lib/supabase/context';
-import type { Channel } from '@/lib/types/chat';
-import { CHANNEL_QUERY } from '@/lib/chat/queries';
+
+import type { Channel } from '@/lib/types/chat'
+import { CHANNEL_QUERY } from '@/lib/chat/queries'
+import { supabase } from '../supabase'
 
 export function useCommunity() {
-  const [channels, setChannels] = useState<Channel[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const supabase = useSupabase();
+  const [channels, setChannels] = useState<Channel[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function loadChannels() {
@@ -17,51 +17,54 @@ export function useCommunity() {
         const { data, error } = await supabase
           .from('channels')
           .select(CHANNEL_QUERY)
-          .order('created_at', { ascending: true });
+          .order('created_at', { ascending: true })
 
-        if (error) throw error;
-        setChannels(data || []);
-        setError(null);
+        if (error) throw error
+        setChannels(data || [])
+        setError(null)
       } catch (err: any) {
-        console.error('Error loading channels:', err);
-        setError(err.message);
+        console.error('Error loading channels:', err)
+        setError(err.message)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     }
 
-    loadChannels();
+    loadChannels()
 
     const subscription = supabase
       .channel('public:channels')
-      .on('postgres_changes', 
+      .on(
+        'postgres_changes',
         { event: '*', schema: 'public', table: 'channels' },
         (payload) => {
           switch (payload.eventType) {
             case 'INSERT':
-              setChannels(prev => [...prev, payload.new as Channel]);
-              break;
+              setChannels((prev) => [...prev, payload.new as Channel])
+              break
             case 'UPDATE':
-              setChannels(prev => 
-                prev.map(channel => 
-                  channel.id === payload.new.id ? { ...channel, ...payload.new } : channel
+              setChannels((prev) =>
+                prev.map((channel) =>
+                  channel.id === payload.new.id
+                    ? { ...channel, ...payload.new }
+                    : channel
                 )
-              );
-              break;
+              )
+              break
             case 'DELETE':
-              setChannels(prev => 
-                prev.filter(channel => channel.id !== payload.old.id)
-              );
-              break;
+              setChannels((prev) =>
+                prev.filter((channel) => channel.id !== payload.old.id)
+              )
+              break
           }
         }
       )
-      .subscribe();
+      .subscribe()
 
     return () => {
-      subscription.unsubscribe();
-    };
-  }, [supabase]);
+      subscription.unsubscribe()
+    }
+  }, [supabase])
 
-  return { channels, loading, error };
+  return { channels, loading, error }
 }

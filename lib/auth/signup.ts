@@ -1,17 +1,15 @@
-import { getSupabaseClient } from "@/lib/supabase/client";
-import type { SignupData } from "./types";
+import type { SignupData } from './types'
+import { supabase } from '../supabase'
 
-export async function signUp({ 
-  email, 
-  password, 
-  username, 
-  firstName, 
-  lastName 
+export async function signUp({
+  email,
+  password,
+  username,
+  firstName,
+  lastName,
 }: SignupData) {
-  const supabase = getSupabaseClient();
-  
   if (!supabase) {
-    throw new Error("Unable to connect to Supabase");
+    throw new Error('Unable to connect to Supabase')
   }
 
   // Create auth user with metadata
@@ -19,16 +17,16 @@ export async function signUp({
     email,
     password,
     options: {
-      data: { 
+      data: {
         username,
         firstName,
-        lastName
-      }
-    }
-  });
+        lastName,
+      },
+    },
+  })
 
-  if (authError) throw authError;
-  if (!authData.user) throw new Error("Failed to create user");
+  if (authError) throw authError
+  if (!authData.user) throw new Error('Failed to create user')
 
-  return authData;
+  return authData
 }

@@ -15,7 +15,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useAuth } from "@/lib/auth";
+import { supabase } from '@/lib/supabase'
+
 
 const passwordSchema = z.object({
   currentPassword: z.string().min(6, "Password must be at least 6 characters"),
@@ -28,8 +29,7 @@ const passwordSchema = z.object({
 
 export function SecuritySettings() {
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-  const { supabase } = useAuth();
+  const [success, setSuccess] = useState(false)
 
   const form = useForm<z.infer<typeof passwordSchema>>({
     resolver: zodResolver(passwordSchema),
