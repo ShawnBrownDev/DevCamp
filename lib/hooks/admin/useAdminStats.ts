@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 
-import type { AdminStats } from '@/lib/types/admin';
+import type { AdminSubmission } from '@/lib/types/admin';
 import { supabase } from '@/lib/supabase'
 
 export function useAdminStats() {
-  const [stats, setStats] = useState<AdminStats | null>(null)
+  const [stats, setStats] = useState<AdminSubmission| null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

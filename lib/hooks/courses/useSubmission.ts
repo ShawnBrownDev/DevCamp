@@ -1,8 +1,9 @@
 "use client";
 
+import { useAuthProvider } from '@/lib/auth';
+import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
-import { useSupabase } from '@/lib/supabase/hooks';
-import { useAuth } from '@/lib/auth';
+
 
 interface Submission {
   id: string;
@@ -17,8 +18,7 @@ export function useSubmission(lessonId: string) {
   const [submission, setSubmission] = useState<Submission | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const supabase = useSupabase();
-  const { user } = useAuth();
+  const { user } = useAuthProvider();
 
   useEffect(() => {
     let mounted = true;
@@ -84,7 +84,7 @@ export function useSubmission(lessonId: string) {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [lessonId, user, supabase]);
+  }, [lessonId, user]);
 
   return { submission, loading, error };
 }
