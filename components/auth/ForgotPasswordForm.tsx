@@ -16,8 +16,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useAuth } from "@/lib/auth";
 import { getAuthErrorMessage } from "@/lib/auth/errors";
+import { supabase } from "@/lib/supabase";
 
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -31,7 +31,7 @@ export function ForgotPasswordForm({ onCancel }: ForgotPasswordFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const { supabase } = useAuth();
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
