@@ -5,41 +5,21 @@ import { AuthenticatedRoute } from "@/components/auth/AuthenticatedRoute";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { ChannelList } from "@/components/community/ChannelList";
 import { ChatContainer } from "@/components/community/ChatContainer";
-import { LoadingState } from "@/components/community/LoadingState";
 import { EmptyState } from "@/components/community/EmptyState";
-import { useCommunity, useMessages } from "@/lib/hooks";
+import { useChannels } from "@/lib/hooks/chat/useChannels";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 export default function CommunityPage() {
-  const { channels, loading: channelsLoading, error: channelsError } = useCommunity();
+  const { channels, loading } = useChannels();
   const [selectedChannelId, setSelectedChannelId] = useState<string | null>(null);
-  
-  const { 
-    messages, 
-    error: messagesError, 
-    isLoading: messagesLoading,
-    sendMessage,
-    editMessage,
-    deleteMessage
-  } = useMessages(selectedChannelId);
 
-  if (channelsLoading) {
+  if (loading) {
     return (
       <AuthenticatedRoute>
         <DashboardLayout>
-          <LoadingState />
-        </DashboardLayout>
-      </AuthenticatedRoute>
-    );
-  }
-
-  if (channelsError) {
-    return (
-      <AuthenticatedRoute>
-        <DashboardLayout>
-          <EmptyState 
-            title="Unable to load community"
-            description={channelsError}
-          />
+          <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+            <LoadingSpinner />
+          </div>
         </DashboardLayout>
       </AuthenticatedRoute>
     );
@@ -52,20 +32,13 @@ export default function CommunityPage() {
           <div className="w-64 border-r bg-muted/10">
             <ChannelList
               channels={channels}
-              selectedChannelId={selectedChannelId || undefined}
+              selectedChannelId={selectedChannelId}
               onSelectChannel={setSelectedChannelId}
             />
           </div>
           <div className="flex-1">
             {selectedChannelId ? (
-              <ChatContainer
-                messages={messages}
-                onSendMessage={sendMessage}
-                onEditMessage={editMessage}
-                onDeleteMessage={deleteMessage}
-                isLoading={messagesLoading}
-                error={messagesError}
-              />
+              <ChatContainer channelId={selectedChannelId} />
             ) : (
               <EmptyState
                 title="Select a channel"

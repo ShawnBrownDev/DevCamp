@@ -1,6 +1,6 @@
 "use client";
 
-import { Hash, Lock, Plus, Trash } from "lucide-react";
+import { Hash, Lock, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Channel } from "@/lib/types/chat";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -15,33 +15,20 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { CreateChannelForm } from "./CreateChannelForm";
-import { supabase } from "@/lib/supabase";
 
 interface ChannelListProps {
   channels: Channel[];
-  selectedChannelId?: string;
+  selectedChannelId?: string | null;
   onSelectChannel: (channelId: string) => void;
 }
 
-export function ChannelList({ channels, selectedChannelId, onSelectChannel }: ChannelListProps) {
+export function ChannelList({ 
+  channels, 
+  selectedChannelId, 
+  onSelectChannel 
+}: ChannelListProps) {
   const { isAdmin } = useAdminCheck();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-
-  const handleDeleteChannel = async (channelId: string) => {
-    if (!confirm("Are you sure you want to delete this channel?")) return;
-
-    try {
-      const { error } = await supabase
-        .from('channels')
-        .delete()
-        .eq('id', channelId);
-
-      if (error) throw error;
-    } catch (err) {
-      console.error('Error deleting channel:', err);
-      alert('Failed to delete channel');
-    }
-  };
 
   return (
     <ScrollArea className="h-full">
@@ -64,39 +51,25 @@ export function ChannelList({ channels, selectedChannelId, onSelectChannel }: Ch
             </Dialog>
           )}
         </div>
+
         <div className="space-y-1">
           {channels.map((channel) => (
-            <div
+            <Button
               key={channel.id}
+              variant="ghost"
               className={cn(
-                "flex items-center justify-between px-4 py-2 rounded-md transition-colors group",
-                "hover:bg-accent hover:text-accent-foreground",
-                selectedChannelId === channel.id && "bg-accent text-accent-foreground"
+                "w-full justify-start gap-2 px-4",
+                selectedChannelId === channel.id && "bg-accent"
               )}
+              onClick={() => onSelectChannel(channel.id)}
             >
-              <Button
-                variant="ghost"
-                className="flex-1 flex items-center justify-start gap-x-2 p-0 h-auto font-medium"
-                onClick={() => onSelectChannel(channel.id)}
-              >
-                {channel.is_private ? (
-                  <Lock className="h-4 w-4 shrink-0" />
-                ) : (
-                  <Hash className="h-4 w-4 shrink-0" />
-                )}
-                <span className="truncate">{channel.name}</span>
-              </Button>
-              {isAdmin && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="opacity-0 group-hover:opacity-100"
-                  onClick={() => handleDeleteChannel(channel.id)}
-                >
-                  <Trash className="h-4 w-4" />
-                </Button>
+              {channel.is_private ? (
+                <Lock className="h-4 w-4 shrink-0" />
+              ) : (
+                <Hash className="h-4 w-4 shrink-0" />
               )}
-            </div>
+              <span className="truncate">{channel.name}</span>
+            </Button>
           ))}
         </div>
       </div>

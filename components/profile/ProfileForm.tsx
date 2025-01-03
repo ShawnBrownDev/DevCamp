@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useProfile } from "@/lib/hooks/useProfile";
+import { useAuthProvider } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 
 const profileSchema = z.object({

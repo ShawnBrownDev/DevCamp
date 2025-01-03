@@ -2,7 +2,6 @@
 
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { useAuthProvider } from '@/lib/auth'
 
@@ -12,12 +11,29 @@ interface AuthenticatedRouteProps {
 
 export function AuthenticatedRoute({ children }: AuthenticatedRouteProps) {
   const router = useRouter();
-  const { user, isLoading } = useAuthProvider()
+  const { user, isLoading } = useAuthProvider();
 
   useEffect(() => {
-    if (!isLoading && !user) {
-      router.push(`/login?returnUrl=${router.pathname}`);
+    let mounted = true;
+
+    async function checkAuth() {
+      if (!isLoading && !user && mounted) {
+        try {
+          await router.push(`/login?returnUrl=${encodeURIComponent(router.pathname)}`);
+        } catch (error: any) {
+          // Ignore navigation cancellation errors
+          if (!error.cancelled) {
+            console.error('Navigation error:', error);
+          }
+        }
+      }
     }
+
+    checkAuth();
+
+    return () => {
+      mounted = false;
+    };
   }, [user, isLoading, router]);
 
   if (isLoading) {
