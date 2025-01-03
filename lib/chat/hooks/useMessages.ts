@@ -6,7 +6,6 @@ import { useMessageStore } from '@/lib/stores/messageStore'
 import { usePagination } from './usePagination'
 import { useRealtime } from './useRealtime'
 import { fetchMessages, PAGE_SIZE, MESSAGES_QUERY } from '../queries/messages'
-import type { Message } from '@/lib/types/community'
 import { supabase } from '@/lib/supabase'
 
 export function useMessages(channelId: string | null) {
@@ -28,14 +27,14 @@ export function useMessages(channelId: string | null) {
 
         const newMessages = data || []
         setMessages([...messages, ...newMessages])
-        return newMessages.length === PAGE_SIZE
+        // return newMessages.length === PAGE_SIZE
       } catch (err: any) {
         console.error('Error loading more messages:', err)
         setError(err.message)
-        return false
+        // return false
       }
     },
-    [channelId, messages, supabase]
+    [channelId, messages]
   )
 
   const { hasMore, isLoading, loadMore } = usePagination({
@@ -52,7 +51,7 @@ export function useMessages(channelId: string | null) {
         .single()
 
       if (!error && data) {
-        addMessage(data as Message)
+        addMessage(data)
       }
     },
     [supabase, addMessage]

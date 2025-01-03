@@ -29,7 +29,7 @@ export function useMessages(channelId: string | null) {
           .order('created_at', { ascending: true })
 
         if (error) throw error
-        setMessages(data || [])
+        setMessages(data as Message[])
         setError(null)
       } catch (err: any) {
         console.error('Error loading messages:', err)

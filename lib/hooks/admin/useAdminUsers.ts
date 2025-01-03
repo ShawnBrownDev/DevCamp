@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 
-import type { AdminUser } from '@/lib/types/admin'
+
 import { supabase } from '@/lib/supabase'
 
 export function useAdminUsers() {
-  const [users, setUsers] = useState<AdminUser[]>([])
+  const [users, setUsers] = useState<any>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

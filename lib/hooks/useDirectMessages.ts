@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 
-import { DIRECT_MESSAGE_QUERY } from '@/lib/chat/queries'
+import { DIRECT_MESSAGE_FIELDS } from '@/lib/chat/queries'
 import type { DirectMessage } from '@/lib/types/chat'
 import { supabase } from '../supabase'
 
@@ -22,7 +22,7 @@ export function useDirectMessages(conversationId: string | null) {
       try {
         const { data, error } = await supabase
           .from('direct_messages')
-          .select(DIRECT_MESSAGE_QUERY)
+          .select(DIRECT_MESSAGE_FIELDS)
           .eq('conversation_id', conversationId)
           .order('created_at', { ascending: true })
 
