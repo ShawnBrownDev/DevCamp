@@ -7,10 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 
 interface ChatInputProps {
   onSendMessage: (content: string) => Promise<void>;
-  placeholder?: string;
 }
 
-export function ChatInput({ onSendMessage, placeholder = "Type a message..." }: ChatInputProps) {
+export function ChatInput({ onSendMessage }: ChatInputProps) {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -23,7 +22,6 @@ export function ChatInput({ onSendMessage, placeholder = "Type a message..." }: 
       setIsLoading(true);
       await onSendMessage(message);
       setMessage("");
-      // Reset textarea height
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
       }
@@ -39,24 +37,14 @@ export function ChatInput({ onSendMessage, placeholder = "Type a message..." }: 
     }
   };
 
-  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setMessage(e.target.value);
-    
-    // Auto-resize textarea
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-    }
-  };
-
   return (
     <form onSubmit={handleSubmit} className="flex items-end gap-2 p-4 border-t">
       <Textarea
         ref={textareaRef}
         value={message}
-        onChange={handleTextareaChange}
+        onChange={(e) => setMessage(e.target.value)}
         onKeyDown={handleKeyPress}
-        placeholder={placeholder}
+        placeholder="Type a message..."
         className="min-h-[80px] max-h-[200px] resize-none"
         disabled={isLoading}
       />

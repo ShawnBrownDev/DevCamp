@@ -4,6 +4,14 @@ export interface User {
   first_name?: string | null;
   last_name?: string | null;
   avatar_url?: string | null;
+  role: 'user' | 'admin' | 'moderator';
+  feature_flags: FeatureFlags;
+}
+
+export interface FeatureFlags {
+  beta_features: boolean;
+  advanced_chat: boolean;
+  custom_themes: boolean;
 }
 
 export interface Message {
@@ -12,7 +20,8 @@ export interface Message {
   user_id: string;
   channel_id: string;
   created_at: string;
-  user?: User;
+  edited: boolean;
+  user_data: User;
 }
 
 export interface Channel {
@@ -20,25 +29,5 @@ export interface Channel {
   name: string;
   description?: string;
   is_private: boolean;
-  created_by?: string;
   created_at: string;
-  updated_at?: string;
-}
-
-export interface DirectMessage {
-  id: string;
-  content: string;
-  sender_id: string;
-  recipient_id: string;
-  conversation_id: string;
-  read_at?: string;
-  created_at: string;
-  sender?: User;
-}
-
-export interface Thread {
-  id: string;
-  message_id: string;
-  created_at: string;
-  messages: Message[];
 }

@@ -1,77 +1,90 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useMessageStore } from '@/lib/stores/messageStore';
-import type { Message } from '@/lib/types/community';
+import { useState, useEffect, useRef } from 'react';
+import { RealtimeChannel } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
-
-const MESSAGES_QUERY = `
-  id,
-  content,
-  created_at,
-  user:users (
-    id,
-    username,
-    first_name,
-    last_name,
-    avatar_url
-  )
-`;
-
-const PAGE_SIZE = 20;
+import { QUERIES } from '@/lib/supabase/queries';
+import type { Message } from '@/lib/types/chat';
 
 export function useMessages(channelId: string | null) {
-  const [error, setError] = useState<string | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true)
-  const subscriptionRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
-  const { messages, setMessages, addMessage } = useMessageStore(channelId);
+  const [error, setError] = useState<string | null>(null);
+  const channelRef = useRef<RealtimeChannel | null>(null);
 
-  const fetchMessages = useCallback(async (lastMessageId?: string) => {
+  useEffect(() => {
     if (!channelId) return;
     
-    try {
-      setIsLoading(true);
-      let query = supabase
-        .from('messages')
-        .select(MESSAGES_QUERY)
-        .eq('channel_id', channelId)
-        .order('created_at', { ascending: false })
-        .limit(PAGE_SIZE);
+    let mounted = true;
 
-      if (lastMessageId) {
-        query = query.lt('id', lastMessageId);
+    async function loadMessages() {
+      try {
+        setIsLoading(true);
+        const { data, error: fetchError } = await supabase
+          .from('messages')
+          .select(QUERIES.MESSAGE)
+          .eq('channel_id', channelId)
+          .order('created_at', { ascending: true });
+
+        if (fetchError) throw fetchError;
+        if (mounted) {
+          setMessages(data || []);
+          setError(null);
+        }
+      } catch (err: any) {
+        console.error('Error loading messages:', err);
+        if (mounted) {
+          setError(err.message);
+        }
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-      
-      const newMessages = data || [];
-      setHasMore(newMessages.length === PAGE_SIZE);
-      
-      if (lastMessageId) {
-        setMessages([...messages, ...newMessages]);
-      } else {
-        setMessages(newMessages);
-      }
-      
-      setError(null);
-    } catch (err: any) {
-      console.error('Error fetching messages:', err);
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
     }
-  }, [channelId, messages]);
 
-  const loadMore = useCallback(() => {
-    if (!messages.length) return;
-    const lastMessage = messages[messages.length - 1];
-    fetchMessages(lastMessage.id);
-  }, [messages, fetchMessages]);
+    // Load initial messages
+    loadMessages();
 
-  const sendMessage = useCallback(async (content: string) => {
+    // Set up realtime subscription with proper channel name
+    const channel = supabase.channel(`messages:${channelId}`)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'messages',
+        filter: `channel_id=eq.${channelId}`
+      }, async (payload) => {
+        if (!mounted) return;
+
+        // Fetch complete message with user data
+        const { data, error } = await supabase
+          .from('messages')
+          .select(QUERIES.MESSAGE)
+          .eq('id', payload.new.id)
+          .single();
+
+        if (!error && data) {
+          setMessages(prev => [...prev, data]);
+        }
+      })
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          console.log('Subscribed to messages channel:', channelId);
+        }
+      });
+
+    channelRef.current = channel;
+
+    return () => {
+      mounted = false;
+      if (channelRef.current) {
+        console.log('Unsubscribing from messages channel:', channelId);
+        channelRef.current.unsubscribe();
+      }
+    };
+  }, [channelId]);
+
+  const sendMessage = async (content: string) => {
     if (!channelId) {
       setError('No channel selected');
       return;
@@ -81,72 +94,23 @@ export function useMessages(channelId: string | null) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      const { error } = await supabase
+      const { error: sendError } = await supabase
         .from('messages')
         .insert([{
           content,
           channel_id: channelId,
-          user_id: user.id
+          user_id: user.id,
+          edited: false
         }]);
 
-      if (error) throw error;
+      if (sendError) throw sendError;
       setError(null);
     } catch (err: any) {
       console.error('Error sending message:', err);
       setError(err.message);
+      throw err;
     }
-  }, [channelId, supabase]);
-
-  useEffect(() => {
-    if (!channelId) {
-      setMessages([]);
-      return;
-    }
-
-    fetchMessages();
-
-    // Cleanup previous subscription
-    if (subscriptionRef.current) {
-      subscriptionRef.current.unsubscribe();
-    }
-
-    // Set up real-time subscription
-    subscriptionRef.current = supabase
-      .channel(`messages:${channelId}`)
-      .on('postgres_changes', 
-        { 
-          event: 'INSERT', 
-          schema: 'public', 
-          table: 'messages',
-          filter: `channel_id=eq.${channelId}`
-        },
-        async (payload) => {
-          const { data, error } = await supabase
-            .from('messages')
-            .select(MESSAGES_QUERY)
-            .eq('id', payload.new.id)
-            .single();
-
-          if (!error && data) {
-            addMessage(data);
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      if (subscriptionRef.current) {
-        subscriptionRef.current.unsubscribe();
-      }
-    };
-  }, [channelId]);
-
-  return {
-    messages,
-    error,
-    isLoading,
-    hasMore,
-    sendMessage,
-    loadMore
   };
+
+  return { messages, error, isLoading, sendMessage };
 }

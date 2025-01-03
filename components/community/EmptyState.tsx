@@ -9,7 +9,7 @@ interface EmptyStateProps {
 
 export function EmptyState({ title, description }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center h-[calc(100vh-4rem)] space-y-4">
+    <div className="flex flex-col items-center justify-center h-full space-y-4 p-4">
       <div className="p-4 rounded-full bg-muted">
         <MessageSquare className="h-8 w-8 text-muted-foreground" />
       </div>

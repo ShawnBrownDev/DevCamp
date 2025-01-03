@@ -58,7 +58,6 @@ export function CreateChannelForm({ onSuccess }: CreateChannelFormProps) {
       onSuccess();
     } catch (err) {
       console.error('Error creating channel:', err);
-      alert('Failed to create channel');
     } finally {
       setIsSubmitting(false);
     }
