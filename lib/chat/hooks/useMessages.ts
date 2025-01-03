@@ -18,20 +18,14 @@ export function useMessages(channelId: string | null) {
       if (!channelId) return
 
       try {
-        const { data, error } = await fetchMessages(
-          supabase,
-          channelId,
-          lastMessageId
-        )
+        const { data, error } = await fetchMessages(channelId, lastMessageId)
         if (error) throw error
 
         const newMessages = data || []
         setMessages([...messages, ...newMessages])
-        // return newMessages.length === PAGE_SIZE
       } catch (err: any) {
         console.error('Error loading more messages:', err)
         setError(err.message)
-        // return false
       }
     },
     [channelId, messages]
