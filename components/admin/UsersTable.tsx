@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -9,14 +10,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
 import { useAdminUsers } from "@/lib/hooks/admin/useAdminUsers";
 import { formatDistanceToNow } from "date-fns";
-import { Loader2 } from "lucide-react";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 export function UsersTable() {
-  const { users, loading, error } = useAdminUsers();
   const [search, setSearch] = useState("");
+  const { users, loading, error } = useAdminUsers();
 
   const filteredUsers = users.filter(
     (user) =>
@@ -27,7 +27,7 @@ export function UsersTable() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <LoadingSpinner />
       </div>
     );
   }
@@ -45,13 +45,12 @@ export function UsersTable() {
         className="max-w-sm"
       />
       
-      <div className="rounded-md border">
+      <div className="rounded-md border bg-card/50">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Username</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Status</TableHead>
               <TableHead>Last Sign In</TableHead>
               <TableHead>Joined</TableHead>
             </TableRow>
@@ -61,7 +60,6 @@ export function UsersTable() {
               <TableRow key={user.id}>
                 <TableCell className="font-medium">{user.username}</TableCell>
                 <TableCell>{user.email}</TableCell>
-                <TableCell>{user.subscription_status}</TableCell>
                 <TableCell>
                   {user.last_sign_in
                     ? formatDistanceToNow(new Date(user.last_sign_in), {

@@ -53,7 +53,7 @@ export function LessonCard({ lesson }: LessonCardProps) {
             <TabsContent value="assignment">
               {!loading && (
                 <LessonSubmission 
-                  lessonId={lesson.id}
+                  assignmentId={lesson.id}
                   existingSubmission={submission}
                 />
               )}

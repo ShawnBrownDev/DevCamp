@@ -1,9 +1,8 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import { useAuthProvider } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
-import { useState, useEffect } from 'react';
-
 
 interface Submission {
   id: string;
@@ -14,7 +13,7 @@ interface Submission {
   graded_at?: string;
 }
 
-export function useSubmission(lessonId: string) {
+export function useSubmission(assignmentId: string) {
   const [submission, setSubmission] = useState<Submission | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,9 +33,9 @@ export function useSubmission(lessonId: string) {
         const { data, error: submissionError } = await supabase
           .from('submissions')
           .select('*')
-          .eq('lesson_id', lessonId)
+          .eq('assignment_id', assignmentId)
           .eq('user_id', user.id)
-          .maybeSingle(); // Use maybeSingle instead of single to handle no results gracefully
+          .maybeSingle();
 
         if (submissionError) throw submissionError;
 
@@ -60,13 +59,13 @@ export function useSubmission(lessonId: string) {
 
     // Subscribe to changes
     const subscription = supabase
-      .channel(`submissions:${lessonId}:${user?.id}`)
+      .channel(`submissions:${assignmentId}:${user?.id}`)
       .on('postgres_changes', 
         { 
           event: '*', 
           schema: 'public', 
           table: 'submissions',
-          filter: `lesson_id=eq.${lessonId} AND user_id=eq.${user?.id}`
+          filter: `assignment_id=eq.${assignmentId} AND user_id=eq.${user?.id}`
         },
         (payload) => {
           if (!mounted) return;
@@ -84,7 +83,7 @@ export function useSubmission(lessonId: string) {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [lessonId, user]);
+  }, [assignmentId, user]);
 
   return { submission, loading, error };
 }

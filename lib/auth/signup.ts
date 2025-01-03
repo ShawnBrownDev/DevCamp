@@ -1,7 +1,13 @@
-import { supabase } from '../supabase'
+"use client";
 
-type SignupData = {
-  [key: string]: string
+import { supabase } from '../supabase';
+
+interface SignupData {
+  email: string;
+  password: string;
+  username: string;
+  firstName: string;
+  lastName: string;
 }
 
 export async function signUp({
@@ -12,10 +18,10 @@ export async function signUp({
   lastName,
 }: SignupData) {
   if (!supabase) {
-    throw new Error('Unable to connect to Supabase')
+    throw new Error('Unable to connect to Supabase');
   }
 
-  // Create auth user with metadata
+  // First create the auth user with metadata
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email,
     password,
@@ -23,13 +29,40 @@ export async function signUp({
       data: {
         username,
         firstName,
-        lastName,
+        lastName
       },
-    },
-  })
+    }
+  });
 
-  if (authError) throw authError
-  if (!authData.user) throw new Error('Failed to create user')
+  if (authError) throw authError;
+  if (!authData.user) throw new Error('Failed to create user');
 
-  return authData
+  // Manually create the user record if needed
+  try {
+    const { error: profileError } = await supabase
+      .from('users')
+      .insert([{
+        id: authData.user.id,
+        username,
+        email,
+        first_name: firstName,
+        last_name: lastName,
+        role: 'user',
+        feature_flags: {
+          beta_features: false,
+          advanced_chat: false,
+          custom_themes: false
+        }
+      }])
+      .single();
+
+    if (profileError && profileError.code !== '23505') { // Ignore unique constraint violations
+      throw profileError;
+    }
+  } catch (err) {
+    console.error('Error creating user profile:', err);
+    // Continue since auth user is created - profile can be created later
+  }
+
+  return authData;
 }
