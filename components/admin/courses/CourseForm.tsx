@@ -23,6 +23,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useCourseManagement } from "@/lib/hooks/admin/useCourseManagement";
 import type { Course } from "@/lib/types/courses";
 
 const courseSchema = z.object({
@@ -37,12 +39,12 @@ type CourseFormData = z.infer<typeof courseSchema>;
 
 interface CourseFormProps {
   initialData?: Partial<Course>;
-  onSubmit: (data: CourseFormData) => Promise<void>;
   onCancel: () => void;
 }
 
-export function CourseForm({ initialData, onSubmit, onCancel }: CourseFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export function CourseForm({ initialData, onCancel }: CourseFormProps) {
+  const [error, setError] = useState<string | null>(null);
+  const { createCourse, updateCourse, loading } = useCourseManagement();
 
   const form = useForm<CourseFormData>({
     resolver: zodResolver(courseSchema),
@@ -55,18 +57,30 @@ export function CourseForm({ initialData, onSubmit, onCancel }: CourseFormProps)
     },
   });
 
-  const handleSubmit = async (data: CourseFormData) => {
+  const onSubmit = async (data: CourseFormData) => {
     try {
-      setIsSubmitting(true);
-      await onSubmit(data);
-    } finally {
-      setIsSubmitting(false);
+      setError(null);
+      if (initialData?.id) {
+        await updateCourse(initialData.id, data);
+      } else {
+        await createCourse(data);
+      }
+      onCancel();
+    } catch (err: any) {
+      console.error("Error saving course:", err);
+      setError(err.message);
     }
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
         <FormField
           control={form.control}
           name="title"
@@ -157,8 +171,8 @@ export function CourseForm({ initialData, onSubmit, onCancel }: CourseFormProps)
         />
 
         <div className="flex gap-2">
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          <Button type="submit" disabled={loading}>
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {initialData ? "Update Course" : "Create Course"}
           </Button>
           <Button type="button" variant="outline" onClick={onCancel}>

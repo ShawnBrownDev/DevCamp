@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useAuthProvider } from '../auth';
-import { supabase } from '../supabase';
+import { useAuthProvider } from '@/lib/auth';
+import { supabase } from '@/lib/supabase';
 
 export function useAdminCheck() {
   const { user } = useAuthProvider();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isModerator, setIsModerator] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -16,13 +17,13 @@ export function useAdminCheck() {
       if (!user) {
         if (mounted) {
           setIsAdmin(false);
+          setIsModerator(false);
           setLoading(false);
         }
         return;
       }
 
       try {
-        // Query the users table directly with single()
         const { data, error } = await supabase
           .from('users')
           .select('role')
@@ -33,12 +34,14 @@ export function useAdminCheck() {
 
         if (mounted) {
           setIsAdmin(data?.role === 'admin');
+          setIsModerator(data?.role === 'moderator');
           setLoading(false);
         }
       } catch (error) {
         console.error('Error checking admin status:', error);
         if (mounted) {
           setIsAdmin(false);
+          setIsModerator(false);
           setLoading(false);
         }
       }
@@ -46,11 +49,10 @@ export function useAdminCheck() {
 
     checkAdminStatus();
 
-    // Cleanup function
     return () => {
       mounted = false;
     };
   }, [user]);
 
-  return { isAdmin, loading };
+  return { isAdmin, isModerator, loading };
 }

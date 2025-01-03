@@ -23,7 +23,7 @@ const submissionSchema = z.object({
 });
 
 interface LessonSubmissionProps {
-  lessonId: string;
+  assignmentId: string;
   existingSubmission?: {
     id: string;
     content: string;
@@ -32,7 +32,7 @@ interface LessonSubmissionProps {
   };
 }
 
-export function LessonSubmission({ lessonId, existingSubmission }: LessonSubmissionProps) {
+export function LessonSubmission({ assignmentId, existingSubmission }: LessonSubmissionProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { submitAssignment, error } = useSubmitAssignment();
 
@@ -46,7 +46,7 @@ export function LessonSubmission({ lessonId, existingSubmission }: LessonSubmiss
   const onSubmit = async (data: z.infer<typeof submissionSchema>) => {
     try {
       setIsSubmitting(true);
-      await submitAssignment(lessonId, data.content);
+      await submitAssignment(assignmentId, data.content);
       form.reset();
     } finally {
       setIsSubmitting(false);

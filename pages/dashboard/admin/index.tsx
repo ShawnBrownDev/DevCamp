@@ -9,10 +9,10 @@ export default function AdminDashboardPage() {
   return (
     <AdminRoute>
       <DashboardLayout>
-        <div className="space-y-8">
+        <div className="space-y-6">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight">Admin Dashboard</h2>
-            <p className="text-muted-foreground">
+            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+            <p className="text-sm text-muted-foreground">
               Manage users and view platform statistics
             </p>
           </div>
@@ -20,7 +20,7 @@ export default function AdminDashboardPage() {
           <AdminStats />
 
           <div className="space-y-4">
-            <h3 className="text-xl font-semibold">Users</h3>
+            <h2 className="text-xl font-semibold">Users</h2>
             <UsersTable />
           </div>
         </div>
