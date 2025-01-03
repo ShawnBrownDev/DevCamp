@@ -10,8 +10,7 @@ interface SettingsTabsProps {
 export function SettingsTabs({ activeTab, onTabChange }: SettingsTabsProps) {
   return (
     <Tabs value={activeTab} onValueChange={onTabChange}>
-      <TabsList className="grid w-full grid-cols-4">
-        <TabsTrigger value="profile">Profile</TabsTrigger>
+      <TabsList className="grid w-full grid-cols-3">
         <TabsTrigger value="preferences">Preferences</TabsTrigger>
         <TabsTrigger value="notifications">Notifications</TabsTrigger>
         <TabsTrigger value="security">Security</TabsTrigger>

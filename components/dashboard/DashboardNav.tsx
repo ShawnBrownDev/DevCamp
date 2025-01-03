@@ -11,7 +11,8 @@ import {
   Shield,
   GraduationCap,
   ChevronDown,
-  LogOut
+  LogOut,
+  User
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,13 +24,14 @@ import {
 
 import { useAdminCheck } from "@/lib/hooks/useAdminCheck";
 import { cn } from "@/lib/utils";
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase';
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Overview" },
   { href: "/dashboard/courses", icon: BookOpen, label: "Courses" },
   { href: "/dashboard/schedule", icon: Calendar, label: "Schedule" },
   { href: "/dashboard/community", icon: MessageSquare, label: "Community" },
+  { href: "/dashboard/profile", icon: User, label: "Profile" },
   { href: "/dashboard/settings", icon: Settings, label: "Settings" },
 ];
 
@@ -45,8 +47,8 @@ export function DashboardNav() {
 
   const handleSignOut = async () => {
     if (supabase) {
-      await supabase.auth.signOut()
-      router.push('/')
+      await supabase.auth.signOut();
+      router.push('/');
     }
   };
 
